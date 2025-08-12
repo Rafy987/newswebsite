@@ -150,7 +150,7 @@ function About({ darkMode }) {
                     </small>
                   </div>
                   <div className="col-md-4 text-md-end mt-2 mt-md-0">
-                    <Link to="/" className="btn btn-primary">
+                    <Link to="/" className="btn btn-success">
                       Browse News
                     </Link>
                   </div>
