@@ -2,7 +2,7 @@
   "name": "newswebsite",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://rafy987.github.io/my-website",
+  "homepage": "https://Rafy987.github.io/newswebsite",
   "dependencies": {
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.6.4",

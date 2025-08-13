@@ -7,14 +7,15 @@ export default function Home({ darkMode, searchQuery, category, initialArticles 
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const articlesPerPage = 5;
-  const loadingBarRef = useRef(null); // 🔹 Loading bar ka ref
+  const loadingBarRef = useRef(null);
+
+  const API_KEY = "4d2dc9a1c07d4c53aab4a3c55e3ac555";
+  const proxyUrl = "https://api.allorigins.win/raw?url="; // ✅ Safe proxy
 
   useEffect(() => {
-    if (searchQuery.trim()) {
-      document.title = `NewsHub - ${searchQuery}`;
-    } else {
-      document.title = `NewsHub - ${category.charAt(0).toUpperCase() + category.slice(1)}`;
-    }
+    document.title = searchQuery.trim()
+      ? `NewsHub - ${searchQuery}`
+      : `NewsHub - ${category.charAt(0).toUpperCase() + category.slice(1)}`;
   }, [category, searchQuery]);
 
   useEffect(() => {
@@ -25,13 +26,14 @@ export default function Home({ darkMode, searchQuery, category, initialArticles 
 
     const fetchNews = async () => {
       setLoading(true);
-      loadingBarRef.current.continuousStart(); // 🔹 Start loading bar
+      loadingBarRef.current.continuousStart();
+
       try {
-        const API_KEY = "4d2dc9a1c07d4c53aab4a3c55e3ac555";
-        const apiUrl = searchQuery.trim()
+        const baseUrl = searchQuery.trim()
           ? `https://newsapi.org/v2/everything?q=${encodeURIComponent(searchQuery)}&language=en&apiKey=${API_KEY}`
           : `https://newsapi.org/v2/top-headlines?country=us&category=${category}&apiKey=${API_KEY}`;
 
+        const apiUrl = `${proxyUrl}${encodeURIComponent(baseUrl)}`;
         const res = await fetch(apiUrl);
         const data = await res.json();
 
@@ -50,7 +52,7 @@ export default function Home({ darkMode, searchQuery, category, initialArticles 
         setArticles([]);
       } finally {
         setLoading(false);
-        loadingBarRef.current.complete(); // 🔹 End loading bar
+        loadingBarRef.current.complete();
         setCurrentPage(1);
       }
     };
@@ -64,17 +66,8 @@ export default function Home({ darkMode, searchQuery, category, initialArticles 
   const currentArticles = articles.slice(indexOfFirstArticle, indexOfLastArticle);
   const totalPages = Math.ceil(articles.length / articlesPerPage);
 
-  const goToNextPage = () => {
-    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
-  };
-
-  const goToPrevPage = () => {
-    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
-  };
-
   return (
     <div className="container my-4">
-      {/* 🔹 Top Loading Bar */}
       <LoadingBar color="#f11946" height={3} ref={loadingBarRef} />
 
       <div className="mb-4">
@@ -88,13 +81,16 @@ export default function Home({ darkMode, searchQuery, category, initialArticles 
         </p>
       </div>
 
-      {articles.length === 0 ? (
+      {loading ? (
+        <div className="text-center py-5">
+          <div className="spinner-border text-primary" role="status"></div>
+          <p className="mt-3">Loading news...</p>
+        </div>
+      ) : articles.length === 0 ? (
         <div className="text-center py-5">
           <div className="display-1 mb-3">📰</div>
           <h4 className={darkMode ? "text-light" : "text-dark"}>No articles found</h4>
-          <p className="text-muted">
-            Try adjusting your search terms or browse different categories.
-          </p>
+          <p className="text-muted">Try adjusting your search terms or browse different categories.</p>
         </div>
       ) : (
         <>
@@ -118,7 +114,7 @@ export default function Home({ darkMode, searchQuery, category, initialArticles 
           <div className="d-flex justify-content-between align-items-center mt-4">
             <button
               className="btn btn-outline-secondary"
-              onClick={goToPrevPage}
+              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
               disabled={currentPage === 1}
             >
               Previous
@@ -128,7 +124,7 @@ export default function Home({ darkMode, searchQuery, category, initialArticles 
             </span>
             <button
               className="btn btn-outline-primary"
-              onClick={goToNextPage}
+              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
               disabled={currentPage === totalPages}
             >
               Next
