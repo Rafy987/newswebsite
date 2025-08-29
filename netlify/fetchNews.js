@@ -1,33 +1,24 @@
 const fetch = require("node-fetch");
 
-exports.handler = async function (event, context) {
+exports.handler = async (event) => {
+  const API_KEY = process.env.REACT_APP_NEWS_API_KEY;
+  const { type, q, category } = event.queryStringParameters;
+
+  let url = "";
+  if (type === "search") {
+    url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(q)}&language=en&apiKey=${API_KEY}`;
+  } else {
+    url = `https://newsapi.org/v2/top-headlines?country=us&category=${category}&apiKey=${API_KEY}`;
+  }
+
   try {
-    const API_KEY = process.env.NEWS_API_KEY; // ✅ Safe from env variable
-
-    let url = "";
-
-    if (event.queryStringParameters.q) {
-      // 🔍 Search query
-      const query = encodeURIComponent(event.queryStringParameters.q);
-      url = `https://newsapi.org/v2/everything?q=${query}&language=en&apiKey=${API_KEY}`;
-    } else {
-      // 📰 Category headlines
-      const category = event.queryStringParameters.category || "general";
-      url = `https://newsapi.org/v2/top-headlines?country=us&category=${category}&apiKey=${API_KEY}`;
-    }
-
-    const response = await fetch(url);
-    const data = await response.json();
-
+    const res = await fetch(url);
+    const data = await res.json();
     return {
       statusCode: 200,
       body: JSON.stringify(data),
     };
   } catch (error) {
-    console.error("❌ Netlify Function Error:", error.message);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Failed to fetch news" }),
-    };
+    return { statusCode: 500, body: JSON.stringify({ error: error.message }) };
   }
 };

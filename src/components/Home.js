@@ -28,8 +28,9 @@ export default function Home({ darkMode, searchQuery, category, initialArticles 
       try {
         // ✅ Instead of NewsAPI direct URL → Call Netlify Function
         const baseUrl = searchQuery.trim()
-          ? `/.netlify/functions/fetchNews?q=${encodeURIComponent(searchQuery)}`
-          : `/.netlify/functions/fetchNews?category=${category}`;
+  ? `/.netlify/functions/fetchNews?type=search&q=${encodeURIComponent(searchQuery)}`
+  : `/.netlify/functions/fetchNews?type=top&category=${category}`;
+
 
         console.log("Fetching:", baseUrl);
         const res = await fetch(baseUrl);
