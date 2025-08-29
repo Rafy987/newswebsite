@@ -9,9 +9,6 @@ export default function Home({ darkMode, searchQuery, category, initialArticles 
   const articlesPerPage = 5;
   const loadingBarRef = useRef(null);
 
-  const API_KEY = "4d2dc9a1c07d4c53aab4a3c55e3ac555";
-  const proxyUrl = "https://api.allorigins.win/raw?url="; // ✅ Safe proxy
-
   useEffect(() => {
     document.title = searchQuery.trim()
       ? `NewsHub - ${searchQuery}`
@@ -29,13 +26,20 @@ export default function Home({ darkMode, searchQuery, category, initialArticles 
       loadingBarRef.current.continuousStart();
 
       try {
+        // ✅ Instead of NewsAPI direct URL → Call Netlify Function
         const baseUrl = searchQuery.trim()
-          ? `https://newsapi.org/v2/everything?q=${encodeURIComponent(searchQuery)}&language=en&apiKey=${API_KEY}`
-          : `https://newsapi.org/v2/top-headlines?country=us&category=${category}&apiKey=${API_KEY}`;
+          ? `/.netlify/functions/fetchNews?q=${encodeURIComponent(searchQuery)}`
+          : `/.netlify/functions/fetchNews?category=${category}`;
 
-        const apiUrl = `${proxyUrl}${encodeURIComponent(baseUrl)}`;
-        const res = await fetch(apiUrl);
+        console.log("Fetching:", baseUrl);
+        const res = await fetch(baseUrl);
+
+        if (!res.ok) {
+          throw new Error(`API Error: ${res.status} ${res.statusText}`);
+        }
+
         const data = await res.json();
+        console.log("API Response:", data);
 
         if (data.status === "ok" && Array.isArray(data.articles)) {
           const filtered = data.articles.filter(
@@ -48,7 +52,7 @@ export default function Home({ darkMode, searchQuery, category, initialArticles 
           setArticles([]);
         }
       } catch (error) {
-        console.error("Error fetching news:", error);
+        console.error("❌ Error fetching news:", error.message);
         setArticles([]);
       } finally {
         setLoading(false);

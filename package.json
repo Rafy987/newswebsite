@@ -2,7 +2,7 @@
   "name": "newswebsite",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://Rafy987.github.io/newswebsite",
+  "homepage": ".",
   "dependencies": {
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.6.4",
@@ -10,7 +10,6 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.11.0",
     "bootstrap": "^5.3.7",
-    "express": "^5.1.0",
     "framer-motion": "^12.23.12",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
